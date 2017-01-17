@@ -6,10 +6,9 @@ permalink: /about/
 
 Some information about you!
 
-### More Information
+### 自己紹介
+Androidとアニメとドットでがんばるぞい!してるものです
 
-A place to include any other types of information that you'd like to include about yourself.
+### メールアドレス
 
-### Contact me
-
-[email@domain.com](mailto:email@domain.com)
+[suwashimizu2013@gmail.com](suwashimizu2013@gmail.com)
