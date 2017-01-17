@@ -4,7 +4,8 @@ title: About
 permalink: /about/
 ---
 
-Some information about you!
+メモ代わりに使ってます
+
 
 ### 自己紹介
 Androidとアニメとドットでがんばるぞい!してるものです
