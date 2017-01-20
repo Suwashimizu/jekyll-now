@@ -8,6 +8,8 @@ tags:
 published: true
 ---
 
+じっくり読みたい
+
 Best practices in Android development
 命名規則とか載ってるので要チェックや!
 [https://github.com/futurice/android-best-practices#resources](https://github.com/futurice/android-best-practices#resources)
