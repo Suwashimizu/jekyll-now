@@ -10,5 +10,5 @@ if [ -n "$title" ]; then
    to_day=`date +"%Y-%m-%d"`
    echo $to_day-$title.mdを作成しました
    # fileの作成
-   touch _posts/$to_day-$title.md
+   cp template.txt _posts/$to_day-$title.md
 fi
