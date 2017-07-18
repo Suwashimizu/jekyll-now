@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+  <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+    <meta charset="utf-8">
+
+<title>Slides</title>
+
+<meta name="description" content="">
+<meta name="author" content="">
+<meta name="generator" content="reveal-ck 3.8.0">
+
+
+
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+<link rel="stylesheet" href="css/reveal.css">
+<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+<!-- Code syntax highlighting -->
+<link rel="stylesheet" href="lib/css/zenburn.css">
+
+<link rel="stylesheet" href="css/reveal-ck.css">
+
+
+<!-- Printing and PDF exports -->
+<script>
+  var link = document.createElement( 'link' );
+  link.rel = 'stylesheet';
+  link.type = 'text/css';
+  link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+  document.getElementsByTagName( 'head' )[0].appendChild( link );
+</script>
+
+<!--[if lt IE 9]>
+<script src="lib/js/html5shiv.js"></script>
+<![endif]-->
+
+  </head>
+
+  <body>
+    <div class="reveal">
+  <!-- Any section element inside of this container is displayed as a slide -->
+  <div class="slides">
+    <section>
+
+<h3>Bitbucket Pipelinesで</h3>
+<h3>出来るCI</h3>
+
+</section>
+<section>
+
+<h3>自己紹介</h3>
+
+<p>名前:Kanege<br>
+所属:AnysenseAndroidエンジニア</p>
+
+<p>好きなもの:kotlinと😺と🐸<br>
+挨拶は「こっとり〜ん」</p>
+
+</section>
+<section>
+
+<p>CI is 何？</p>
+
+<ul>
+  <li>継続的インテグレーション</li>
+  <li>コンパイルやテストといったビルド処理を一日に何度も実行することにより、フィードバックサイクルを短くし、品質を向上させる仕組み。</li>
+  <li>結合テストの自動化、専用のCIサーバーで行うのが望ましい。</li>
+</ul>
+
+</section>
+<section>
+
+<p>つまり・・</p>
+
+<p>動作環境は別々でも<br>
+検証環境を１箇所にすることで<br>
+正しく動作していることをが担保できる。</p>
+
+</section>
+<section>
+
+<p>pipelines is 何</p>
+
+<ul>
+  <li>AtlassianのBitbucketで提供されているCIサービス</li>
+  <li>dockerをベースとしている</li>
+  <li>プロジェクトのrootにbitbucket-pipelines.ymlに設定を記述する</li>
+  <li>webhooksを使用して外部サービスと連携が可能
+    <ul>
+      <li>slackでテストの結果を通知したり,awsにデプロイしたり</li>
+    </ul>
+  </li>
+</ul>
+
+</section>
+<section>
+
+<h1>導入事例</h1>
+
+</section>
+<section>
+
+<h3>起こっていた問題</h3>
+
+<p>いつの間にかTestが壊れてる問題</p>
+
+</section>
+<section>
+
+<h3>起こっていた問題</h3>
+
+<ul>
+  <li>PR1 -&gt; develop:既存のTest破壊,Testせずにマージ</li>
+</ul>
+
+</section>
+<section>
+
+<h3>起こっていた問題</h3>
+
+<ul>
+  <li>PR1 -&gt; develop:既存のTest破壊,Testせずにマージ</li>
+  <li>PR2 -&gt; develop:Testせずにマージ</li>
+</ul>
+
+</section>
+<section>
+
+<h3>起こっていた問題</h3>
+
+<ul>
+  <li>PR1 -&gt; develop:既存のTest破壊,Testせずにマージ</li>
+  <li>PR2 -&gt; develop:Testせずにマージ</li>
+  <li>PR3 -&gt; develop:ここでTestして初めて問題発覚</li>
+</ul>
+
+</section>
+<section>
+
+<p>破壊したやつ誰だお</p>
+
+<p><img src="img/dev02.jpg" alt="Alt Text"></p>
+
+</section>
+<section>
+
+<h3>起こっていた問題</h3>
+
+<p>どうすれば良かった？</p>
+
+<ul>
+  <li>Testを回すことが浸透していなかった -&gt; Testへの意識を上げる</li>
+  <li>PR時にtestを回すように心がける -&gt; 忘れることもある</li>
+</ul>
+
+<p><br><br>
+個人の意識で解決できる問題なのだろうか？</p>
+
+</section>
+<section>
+
+<p>人に依存するよりシステムに任せよう。</p>
+
+</section>
+<section>
+
+<h3>pipelinesで解決</h3>
+
+<ul>
+  <li>開発環境:Android <strong>Build-Tools 24.0.0</strong>
+</li>
+  <li>developブランチに変更があった際にpipelinesが走る</li>
+  <li>./gradlew testでTestを実行</li>
+  <li>結果をslackに通知する</li>
+</ul>
+
+</section>
+<section>
+
+<p>Androidだとこんな設定です!</p>
+
+<p>bitbucket-pipelines.yml</p>
+
+<pre><code>image: uber/android-build-environment
+
+pipelines:
+  branches:
+    develop://実行ブランチの指定
+      - step://stepの定義,
+          script://スクリプトの指定
+              - mkdir -p "$ANDROID_HOME/licenses"
+              - echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" &gt; "$ANDROID_HOME/licenses/android-sdk-license"
+              - echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" &gt; "$ANDROID_HOME/licenses/android-sdk-preview-license"
+              - echo y | android update sdk --no-ui -a
+              - touch local.properties
+              - ./gradlew dependencies || true
+              - ./gradlew test // test実行
+</code></pre>
+
+</section>
+<section>
+
+<p>developブランチに変更があると<br>
+pipelinesが走り<br>
+slackに通知してくれるようになる!</p>
+
+</section>
+<section>
+
+<p>開始時<br>
+<img src="img/result01.png" alt="Alt Text"><br>
+成功時<br>
+<img src="img/result02.png" alt="Alt Text"><br>
+失敗時<br>
+<img src="img/result03.png" alt="Alt Text"></p>
+
+</section>
+<section>
+
+<p>異常があればすぐに気付けるので<br>
+原因の特定が用意になった!</p>
+
+</section>
+<section>
+
+<p><img src="img/Constitution.png" alt="Alt Text"></p>
+
+</section>
+<section>
+
+<h1>まとめ</h1>
+
+<ul>
+  <li>テスト自動化とその結果をslackにPOSTしてくれる!</li>
+  <li>バグがあれば即行気付ける、健全な状態を保てる!</li>
+  <li>ワークフローを1つに纏めてくれる!</li>
+</ul>
+
+</section>
+<section>
+
+<p>自動化を進めて開発に集中しよう!</p>
+
+</section>
+<section>
+
+<p>ご清聴ありがとうございました</p>
+
+</section>
+
+  </div>
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.js"></script>
+
+
+<script>
+  (function() {
+  function extend( a, b ) {
+    for(var i in b) {
+      a[i] = b[i];
+    }
+  }
+  var baseOptions = {
+    transition: 'default',
+
+    dependencies: [
+      { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'plugin/zoom-js/zoom.js', async: true },
+      { src: 'plugin/notes/notes.js', async: true }
+    ]
+  };
+
+  
+
+  var configOptions = {"controls":true,"progress":true,"history":true,"center":true}
+  var initializeOptions = {};
+  extend(initializeOptions, baseOptions);
+  extend(initializeOptions, configOptions);
+  Reveal.initialize(initializeOptions);
+})();
+
+</script>
+
+  </body>
+</html>
